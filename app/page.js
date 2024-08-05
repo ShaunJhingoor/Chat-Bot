@@ -51,7 +51,7 @@ export default function Home() {
         }
   
         const text = decoder.decode(value || new Uint8Array(), { stream: true });
-        console.log('Text received:', text);
+      
   
         setMessages((messages) => {
           const last = messages[messages.length - 1];
