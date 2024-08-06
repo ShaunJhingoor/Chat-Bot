@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
+// OpenAI
 import OpenAI from "openai";
+// Pinecone
+import { Pinecone } from "@pinecone-database/pinecone";
+import { queryPineconeVectorStoreAndQueryLLM } from "../../../utils";
+import { indexName } from "@/config";
 
 const systemprompt = `Welcome to Headstarter's Customer Support!
 
@@ -37,31 +42,40 @@ User: "I’m having trouble connecting to my interview session."
 Support AI: "I’m sorry to hear you’re having trouble. Can you please provide more details about the issue? For example, are you receiving any error messages or having connectivity problems? I’m here to help you resolve this."
 `
 export async function POST(req){
-    const openai = new OpenAI();
+    // const openai = new OpenAI();
     const data = await req.json()
+    const question = data.find(x => x.role === 'user').content
    
-    const completion = await openai.chat.completions.create({
-        messages: [{role: "system", content: systemprompt}, ...data],
-        model: "gpt-4o-mini",
-        stream: true,
-      });
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      async start(controller){
-        try{
-          for await (const chunk of completion){
-            const content = chunk.choices[0]?.delta?.content
-            if (content){
-              const text = encoder.encode(content)
-              controller.enqueue(text)
-            }
-          }
-        } catch (err){
-          controller.err(err)
-        } finally {
-          controller.close()
-        }
-      },
-    })
-    return new NextResponse(stream)
+    // const completion = await openai.chat.completions.create({
+    //     messages: [{role: "system", content: systemprompt}, ...data],
+    //     model: "gpt-4o-mini",
+    //     stream: true,
+    //   });
+    const client = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY || "",
+    });
+    const completion = await queryPineconeVectorStoreAndQueryLLM(
+      client,
+      indexName,
+      question
+    );
+    // const encoder = new TextEncoder();
+    // const stream = new ReadableStream({
+    //   async start(controller){
+    //     try{
+    //       for await (const chunk of completion){
+    //         const content = chunk.choices[0]?.delta?.content
+    //         if (content){
+    //           const text = encoder.encode(content)
+    //           controller.enqueue(text)
+    //         }
+    //       }
+    //     } catch (err){
+    //       controller.err(err)
+    //     } finally {
+    //       controller.close()
+    //     }
+    //   },
+    // })
+    return new NextResponse(completion)
 }
