@@ -1,74 +1,68 @@
 "use client";
 import { Button, TextField, Box } from "@mui/material";
-import { Stack } from "@mui/system";
-import { useState, useRef, useEffect } from "react";
-import SendIcon from '@mui/icons-material/Send'; // Import the send icon
-import ReactMarkdown from 'react-markdown';
+import {Stack} from "@mui/material";
+import { useState, useEffect, useRef } from "react";
+import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import SendIcon from '@mui/icons-material/Send';
+// import IconButton from "@mui/material";
 
 export default function Home() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: `Hi! I'm Headstarter support assistant. How can I help you today?` }
+    { role: 'assistant', content: `Hi! I'm your frontend assistant how can I help?` }
   ]);
   const [userMessage, setUserMessage] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Scroll to the bottom when messages change
+ 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const sendMessage = async () => {
     if (userMessage.trim() === "") return;
-  
+
+    const newMessage = { role: 'user', content: userMessage };
     setUserMessage('');
     setMessages((messages) => [
-      ...messages,
-      { role: 'user', content: userMessage },
-      { role: 'assistant', content: '' }
+        ...messages,
+        newMessage
     ]);
-  
+
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify([...messages, { role: 'user', content: userMessage }])
-      });
-  
-      if (!response.body) {
-        console.error('No response body');
-        return;
-      }
-  
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let result = '';
-  
-      const processText = async ({ done, value }) => {
-        if (done) {
-          return result;
-        }
-  
-        const text = decoder.decode(value || new Uint8Array(), { stream: true });
-      
-  
-        setMessages((messages) => {
-          const last = messages[messages.length - 1];
-          const other = messages.slice(0, messages.length - 1);
-          return [...other, { ...last, content: last.content + text }];
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify([newMessage])
         });
-  
-        result += text;
-        return reader.read().then(processText);
-      };
-  
-      await reader.read().then(processText);
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const result = await response.json();
+        const answer = result.answer || 'No answer received';
+
+        setMessages((messages) => {
+            // Find the index of the last user message
+            const userMessageIndex = messages.findIndex(
+                (message) => message.role === 'user' && message.content === userMessage
+            );
+            // Replace the last user message's corresponding assistant message
+            const updatedMessages = [...messages];
+            updatedMessages[userMessageIndex + 1] = { role: 'assistant', content: answer };
+
+            return updatedMessages;
+        });
     } catch (error) {
-      console.error('Failed to send message', error);
+        console.error('Failed to send message', error);
     }
-  };
-  
+};
+
+
+
   const handleKeyDown = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
@@ -122,7 +116,7 @@ export default function Home() {
                   wordBreak: 'break-word',
                 }}
               >
-                <ReactMarkdown>{message.content}</ReactMarkdown>
+                {message.content}
               </Box>
             </Box>
           ))}
@@ -154,7 +148,7 @@ export default function Home() {
               }
             }}
           />
-          <Button
+            <Button
             variant="contained"
             color="primary"
             onClick={sendMessage}
@@ -171,12 +165,80 @@ export default function Home() {
               '&:hover': {
                 bgcolor: 'primary.dark',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)',
+                
               }
             }}
           >
-            <SendIcon />
+             <span className="icon-container" >
+              <FontAwesomeIcon icon={faPaperPlane} style={{ fontSize: '1.2rem' }} />
+            </span>
           </Button>
         </Box>
+
+        <style jsx>{`
+      @keyframes flyAway {
+        0% {
+          transform: translate(0, 0);
+          opacity: 1;
+        }
+        25% {
+          transform: translate(50px, -50px); /* Move to the top-right */
+          opacity: 0; /* Make the icon disappear */
+        }
+        50% {
+          transform: translate(50px, -50px); /* Stay off-screen at the top-right */
+          opacity: 0; /* Keep the icon invisible */
+        }
+        75% {
+          transform: translate(-75px, 75px); /* Move to the bottom-left smoothly */
+          opacity: 0; 
+        }
+        100% {
+          transform: translate(0, 0); /* Return to the original position */
+          opacity: 1; /* Fully visible */
+        }
+      }
+
+      .icon-container {
+        display: inline-block;
+        position: relative;
+        transition: transform 0.3s ease;
+      }
+
+      .icon-container:hover {
+        animation: flyAway 3s infinite; /* Continuous loop with 3-second duration */
+      }
+
+      .dotted-line {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 150%; /* Make the dotted line larger to cover the movement area */
+        height: 150%;
+        border: 1px dotted white;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        opacity: 0;
+        animation: dash 3s linear infinite;
+      }
+
+      @keyframes dash {
+        0% {
+          background-position: 0 0;
+        }
+        100% {
+          background-position: 100px 0; /* Adjust length of the dash line */
+        }
+      }
+
+      .icon-container:hover ~ .dotted-line {
+        opacity: 0.5; /* Show the dotted line on hover */
+      }
+    `}</style>
+
+
+
+
       </Stack>
     </Box>
   );
