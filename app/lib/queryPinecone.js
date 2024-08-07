@@ -33,10 +33,10 @@ const queryPineconeVectorStoreAndQueryLLM = async (client, indexName, question) 
             let context = queryResponse.matches.map(match => match.metadata.pageContent).join("\n");
             
             // Clean up the text
-            context = context
-                .replace(/React Blog|React Docs|React Versions|Legacy Docs/g, '') // Remove headers or specific unwanted text
-                .replace(/\s{2,}/g, ' ') 
-                .trim();
+            // context = context
+            //     .replace(/React Blog|React Docs|Legacy Docs/g, '') // Remove headers or specific unwanted text
+            //     .replace(/\s{2,}/g, ' ') 
+            //     .trim();
 
             const completion = await openai.chat.completions.create({
                 model: 'gpt-4', 
