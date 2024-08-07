@@ -37,24 +37,24 @@ const queryPineconeVectorStoreAndQueryLLM = async (client, indexName, question) 
                 .replace(/React Blog|React Docs|React Versions|Legacy Docs/g, '') // Remove headers or specific unwanted text
                 .replace(/\s{2,}/g, ' ') 
                 .trim();
-            
+
             const completion = await openai.chat.completions.create({
                 model: 'gpt-4', 
                 messages: [
                     { role: 'system', content: 'You are a helpful assistant.' },
-                    { role: 'user', content: `Provide a concise and clear answer based on the following context:\n\n${context}\n\nQuestion: ${question}` }
+                    { role: 'user', content: `Based on the following context:\n\n${context}\n\nAnswer the question: ${question}. If you can't provide a relevant answer based on the context, respond with "Not trained on this information."` }
                 ],
                 max_tokens: 100
             });
-            console.log(context)
-            console.log(completion)
-            const answer =  completion.choices[0]?.message?.content?.trim() 
+
+            const answer = completion.choices[0]?.message?.content?.trim();
+            
             if (answer) {
-                // console.log(chalk.cyan('Completion:'), answer);
+                // Optionally, you can add additional checks here to see if the answer seems relevant
                 return answer;
-              } else {
-                return 'I do not have access to that information.';
-              }
+            } else {
+                return 'Not trained on this information.';
+            }
         } else {
             return 'No relevant information found.';
         }
