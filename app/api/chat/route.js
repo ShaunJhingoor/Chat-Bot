@@ -23,11 +23,15 @@ export async function POST(req) {
             messages: [
                 {
                     role: 'system',
-                    content: 'Summarize key points only. You are trained on react documentation and nothing else.'
+                    content: `You are given information from a RAG document about React. If the question is related to React, provide an answer based on the context. If the question is unrelated to React, please indicate that the question does not relate to React.`
                 },
                 {
                     role: 'user',
-                    content: `Context: ${context}`
+                    content: `Context: ${context}` // Assuming context.answer contains the RAG document information about React
+                },
+                {
+                    role: 'user',
+                    content: `Question: ${question}` // Assuming context.question contains the actual user question
                 }
             ],
             max_tokens: 150,  
