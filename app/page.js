@@ -26,14 +26,15 @@ export default function Home() {
     setUserMessage('');
     setMessages((messages) => [
         ...messages,
-        newMessage
+        newMessage,
+        { role: 'assistant', content: '' } 
     ]);
 
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
             },
             body: JSON.stringify([newMessage])
         });
@@ -42,20 +43,26 @@ export default function Home() {
             throw new Error('Network response was not ok');
         }
 
-        const result = await response.json();
-        const answer = result.answer || 'No answer received';
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let assistantMessage = '';
 
-        setMessages((messages) => {
-            // Find the index of the last user message
-            const userMessageIndex = messages.findIndex(
-                (message) => message.role === 'user' && message.content === userMessage
-            );
-            // Replace the last user message's corresponding assistant message
-            const updatedMessages = [...messages];
-            updatedMessages[userMessageIndex + 1] = { role: 'assistant', content: answer };
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
 
-            return updatedMessages;
-        });
+            assistantMessage += decoder.decode(value, { stream: true });
+
+            
+            setMessages((messages) => {
+                const updatedMessages = [...messages];
+                updatedMessages[updatedMessages.length - 1] = {
+                    role: 'assistant',
+                    content: assistantMessage
+                };
+                return updatedMessages;
+            });
+        }
     } catch (error) {
         console.error('Failed to send message', error);
     }
