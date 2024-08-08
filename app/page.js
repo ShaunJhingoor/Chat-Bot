@@ -9,7 +9,7 @@ import { Result } from "postcss";
 // import SendIcon from '@mui/icons-material/Send';
 // import IconButton from "@mui/material";
 
-export default async function Home() {
+export default function Home() {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: `Hi! I'm your frontend assistant how can I help?` }
   ]);
