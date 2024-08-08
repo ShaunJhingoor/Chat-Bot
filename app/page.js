@@ -35,7 +35,7 @@ export default function Home() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify([newMessage])
+            body: JSON.stringify(newMessage)
         });
 
         if (!response.ok) {
@@ -47,13 +47,11 @@ export default function Home() {
 
         setMessages((messages) => {
             // Find the index of the last user message
-            const userMessageIndex = messages.findIndex(
-                (message) => message.role === 'user' && message.content === userMessage
-            );
+            // const userMessageIndex = messages[messages.length-1];
             // Replace the last user message's corresponding assistant message
             const updatedMessages = [...messages];
-            updatedMessages[userMessageIndex + 1] = { role: 'assistant', content: answer };
-
+            updatedMessages[updatedMessages.length] = { role: 'assistant', content: answer };
+            
             return updatedMessages;
         });
     } catch (error) {
