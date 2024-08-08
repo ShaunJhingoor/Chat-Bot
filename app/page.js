@@ -4,16 +4,17 @@ import {Stack} from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { getServerSession } from "next-auth";
+import { Result } from "postcss";
 // import SendIcon from '@mui/icons-material/Send';
 // import IconButton from "@mui/material";
 
-export default function Home() {
+export default async function Home() {
   const [messages, setMessages] = useState([
     { role: 'assistant', content: `Hi! I'm your frontend assistant how can I help?` }
   ]);
   const [userMessage, setUserMessage] = useState("");
   const messagesEndRef = useRef(null);
-
  
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -241,5 +242,6 @@ export default function Home() {
 
       </Stack>
     </Box>
+    
   );
 }
