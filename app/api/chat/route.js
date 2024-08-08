@@ -5,7 +5,8 @@ import queryPineconeVectorStoreAndQueryLLM from "../../lib/queryPinecone";
 export async function POST(req) {
     try {
         const data = await req.json();
-        const question = data.find(x => x.role === 'user')?.content;
+        console.log('data in post route: ', data)
+        const question = data.content;
 
         if (!question) {
             return new NextResponse('No question provided', { status: 400 });
