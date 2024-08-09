@@ -1,0 +1,14 @@
+/* NavMenu.css */
+
+.sign-out-icon {
+    cursor: pointer;
+    border: none;
+    color: black;
+    font-size: 1.5rem;
+    transition: transform 0.3s ease; /* Smooth transition for the hover effect */
+  }
+  
+  .sign-out-icon:hover {
+    transform: scale(1.2); /* Scale the icon to 120% of its size on hover */
+  }
+  
