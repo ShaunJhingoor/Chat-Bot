@@ -4,8 +4,6 @@ import {Stack} from "@mui/material";
 import { useState, useEffect, useRef } from "react";
 import { faPaperPlane } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { getServerSession } from "next-auth";
-import { Result } from "postcss";
 import NavMenu from "../components/NavMenu"
 // import SendIcon from '@mui/icons-material/Send';
 // import IconButton from "@mui/material";
@@ -44,25 +42,34 @@ export default function Home() {
             throw new Error('Network response was not ok');
         }
 
-        const result = await response.json();
-        const answer = result.answer || 'No answer received';
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let done = false;
+        let result = '';
 
-        setMessages((messages) => {
-            // Find the index of the last user message
-            const userMessageIndex = messages.findIndex(
-                (message) => message.role === 'user' && message.content === userMessage
-            );
-            // Replace the last user message's corresponding assistant message
-            const updatedMessages = [...messages];
-            updatedMessages[userMessageIndex + 1] = { role: 'assistant', content: answer };
+        // This will hold the entire assistant message
+        let assistantMessage = { role: 'assistant', content: '' };
 
-            return updatedMessages;
-        });
+        // Append a temporary empty assistant message to the state
+        setMessages((messages) => [...messages, assistantMessage]);
+
+        while (!done) {
+            const { value, done: readerDone } = await reader.read();
+            done = readerDone;
+            result += decoder.decode(value, { stream: !done });
+
+            // Update the assistant message with the streaming content
+            setMessages((messages) => {
+                const updatedMessages = [...messages];
+                updatedMessages[updatedMessages.length - 1] = { ...assistantMessage, content: result };
+                return updatedMessages;
+            });
+        }
+
     } catch (error) {
         console.error('Failed to send message', error);
     }
 };
-
 
 
   const handleKeyDown = (event) => {
