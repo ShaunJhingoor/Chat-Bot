@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { usePathname } from "next/navigation";
 import { redirect } from "next/navigation";
 import { faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
