@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 
-// Directly pass the configuration to NextAuth
 const handler = NextAuth({
   providers: [
     GitHubProvider({
