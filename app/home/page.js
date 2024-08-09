@@ -37,7 +37,7 @@ export default function Home() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify([newMessage])
+            body: JSON.stringify(newMessage)
         });
 
         if (!response.ok) {
