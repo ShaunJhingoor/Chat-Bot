@@ -1,5 +1,12 @@
 "use client";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 export default function Login() {
+  const { data: session } = useSession();
+
+  if(session){
+    return redirect("/home")
+  }
   return (
     <>
       <div className="flex flex-col w-full justify-center items-center py-[12vh] lg:gap-[4vh] gap-[8vh]">
