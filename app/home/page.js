@@ -92,7 +92,8 @@ export default function Home() {
         p: 0,
         m: 0,
         bgcolor: "#f0f0f0",
-        overflow: "hidden"
+        overflow: "hidden",
+        marginBottom: ".5rem"
       }}
     > <NavMenu />
       <Stack
