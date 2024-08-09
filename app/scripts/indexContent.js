@@ -4,7 +4,7 @@ import { OpenAI } from 'openai';
 import initPinecone from '../lib/initPinecone.js';
 import async from 'async';
 import { URL } from 'url';
-import chalk from 'chalk'
+// import chalk from 'chalk'
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // Ensure you have your OpenAI API key set in your environment variables
@@ -43,10 +43,10 @@ const updatePinecone = async (client, indexName, docs) => {
   for (const doc of docs) {
     const text = doc.pageContent;
     const chunks = cleanAndChunkText(text);
-    console.log(chalk.blue(`raw : ${text}`));
-    console.log(chalk.green(`chunk: ${chunks}`));
+    // console.log(chalk.blue(`raw : ${text}`));
+    // console.log(chalk.green(`chunk: ${chunks}`));
     const chunkTexts = chunks.map(chunk => chunk.trim()).filter(chunk => chunk.length > 0);
-    console.log(chalk.yellow('Chunk Texts:'), chalk.magenta(chunkTexts)); // Debugging chunked texts
+    // console.log(chalk.yellow('Chunk Texts:'), chalk.magenta(chunkTexts)); // Debugging chunked texts
 
     const embeddings = await generateEmbeddings(chunkTexts);
   

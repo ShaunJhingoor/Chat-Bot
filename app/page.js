@@ -8,4 +8,5 @@ export default async function ProtectedRoute() {
   }
 
   return redirect("/home");
+
 }
